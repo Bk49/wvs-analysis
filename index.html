@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthetic World Values Survey — Exploratory Analysis</title>
+<style>
+
+:root {
+  --bg: #f7f7f5;
+  --card-bg: #ffffff;
+  --text: #1f2328;
+  --muted: #57606a;
+  --border: #e2e2df;
+  --accent: #333;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
+.page { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+header h1 { font-size: 1.6rem; margin-bottom: 12px; }
+.intro { color: var(--muted); margin: 0 0 12px; }
+.intro a { color: #0072B2; }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+.card h2 { margin-top: 0; font-size: 1.2rem; }
+.chart-sub { color: var(--muted); margin-top: -6px; font-size: 0.92rem; }
+.note { color: var(--muted); font-size: 0.9rem; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; }
+code { background: #f0f0ee; padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+.quality-list { padding-left: 20px; margin: 0 0 16px; }
+.quality-list li { margin-bottom: 6px; }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { width: 100%; height: auto; display: block; }
+.takeaway { margin: 10px 0 0; font-size: 0.95rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 10px; font-size: 0.9rem; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-swatch { display: inline-flex; }
+footer { color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 8px; }
+.hm-table { border-collapse: collapse; margin: 0 auto; }
+.hm-table th, .hm-table td { border: 1px solid var(--border); text-align: center; padding: 0; }
+.hm-cell { width: 32px; height: 28px; font-size: 0.7rem; cursor: default; }
+.hm-axis-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.hm-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hm-x-title, .hm-y-title { font-size: 0.85rem; color: var(--muted); text-align: center; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#15171a; --card-bg:#1c1f23; --text:#e6e6e6; --muted:#9aa2ab; --border:#2c3036; }
+  code { background:#262a2f; }
+}
+@media (max-width: 480px) {
+  .page { padding: 16px 10px 32px; }
+  header h1 { font-size: 1.35rem; }
+  .card { padding: 14px; }
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Synthetic World Values Survey — Exploratory Analysis</h1>
+    <p class="intro">
+      The data analysed on this page is <strong>entirely synthetic (simulated)</strong>: every row was
+      fabricated to mirror the distributions and relationships reported in the real
+      <strong>World Values Survey, Wave 7</strong> (Haerpfer, C., Inglehart, R., Moreno, A., Welzel, C., Kizilova, K.,
+      Diez-Medrano J., M. Lagos, P. Norris, E. Ponarin &amp; B. Puranen (eds.). 2022. <em>World Values Survey: Round Seven
+      – Country-Pooled Datafile Version 5.0.</em> Madrid, Spain &amp; Vienna, Austria: JD Systems Institute &amp; WVSA
+      Secretariat. <a href="https://www.worldvaluessurvey.org/" target="_blank" rel="noopener">worldvaluessurvey.org</a>),
+      which this dataset is modelled on. <strong>No real respondent data is used anywhere here, and every finding
+      below is illustrative only</strong> — it describes patterns in the simulation, not real-world results.
+    </p>
+    <p class="intro">
+      Respondents are simulated from five countries across Asia: <strong>China (East Asia), India (South Asia), Singapore (Southeast Asia), Turkey (Middle East), Kazakhstan (Central Asia)</strong>.
+    </p>
+  </header>
+
+  <section class="card">
+    <h2>Data overview</h2>
+    <p>Column names, inferred type, and number of non-empty observations in the raw file
+      (<code>respondent_id</code> is an identifier only, so it is excluded here and from every chart).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Non-empty observations</th></tr></thead>
+        <tbody>
+            <tr><td><code>country</code></td><td>Categorical</td><td>9,329</td></tr>
+            <tr><td><code>age</code></td><td>Numeric (years)</td><td>9,329</td></tr>
+            <tr><td><code>urban_rural</code></td><td>Categorical</td><td>9,329</td></tr>
+            <tr><td><code>income_level</code></td><td>Categorical (ordinal)</td><td>9,132</td></tr>
+            <tr><td><code>sex</code></td><td>Categorical</td><td>9,329</td></tr>
+            <tr><td><code>marital_status</code></td><td>Categorical</td><td>9,278</td></tr>
+            <tr><td><code>education</code></td><td>Categorical (ordinal)</td><td>9,237</td></tr>
+            <tr><td><code>life_satisfaction</code></td><td>Numeric (1-10 scale)</td><td>9,284</td></tr>
+            <tr><td><code>freedom_of_choice</code></td><td>Numeric (1-10 scale)</td><td>9,249</td></tr>
+            <tr><td><code>emancipative_values</code></td><td>Numeric (0-1 index)</td><td>9,234</td></tr>
+            <tr><td><code>trust_people</code></td><td>Categorical (binary)</td><td>9,190</td></tr>
+            <tr><td><code>importance_of_god</code></td><td>Numeric (1-10 scale)</td><td>9,232</td></tr>
+            <tr><td><code>financial_satisfaction</code></td><td>Numeric (1-10 scale)</td><td>9,274</td></tr>
+            <tr><td><code>secular_values</code></td><td>Numeric (0-1 index)</td><td>9,295</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Raw rows: <strong>9,329</strong></p>
+  </section>
+
+  <section class="card">
+    <h2>Data quality checks</h2>
+    <ul class="quality-list">
+      <li><strong>Duplicate rows:</strong> none found — every row is unique.</li>
+      <li><strong>Duplicate <code>respondent_id</code> values:</strong> none found — every respondent ID is unique.</li>
+      <li><strong>Rows with at least one empty cell:</strong>
+        834 of 9,329
+        (8.9%) — these rows were removed from every analysis below,
+        leaving <strong>8,495</strong> clean rows.</li>
+    </ul>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Country</th><th>Raw rows</th><th>Clean rows used below</th></tr></thead>
+        <tbody>
+          <tr><td>China</td><td>3,036</td><td>2,882</td></tr>
+          <tr><td>India</td><td>1,692</td><td>1,567</td></tr>
+          <tr><td>Singapore</td><td>2,012</td><td>1,898</td></tr>
+          <tr><td>Turkey</td><td>1,313</td><td>1,171</td></tr>
+          <tr><td>Kazakhstan</td><td>1,276</td><td>977</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. Cultural map — emancipative vs. secular values</h2>
+    <p class="chart-sub">Each point is one country's average (Inglehart–Welzel style map), not an individual respondent.</p>
+    <div id="chart-cultural-map" class="chart"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Country</th><th>Secular values (avg)</th><th>Emancipative values (avg)</th></tr></thead>
+        <tbody>
+          <tr><td>China</td><td>0.4</td><td>0.39</td></tr>
+          <tr><td>India</td><td>0.26</td><td>0.38</td></tr>
+          <tr><td>Singapore</td><td>0.31</td><td>0.45</td></tr>
+          <tr><td>Turkey</td><td>0.27</td><td>0.36</td></tr>
+          <tr><td>Kazakhstan</td><td>0.37</td><td>0.37</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="takeaway" id="takeaway-cultural-map"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Value fingerprints — radar chart</h2>
+    <p class="chart-sub">Six measures per country, each normalised to a 0–1 scale.</p>
+    <div id="chart-radar" class="chart"></div>
+    <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="--c:#E69F00"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#E69F00" stroke="#E69F00" stroke-width="1.2" /></svg></span>China</span>
+          <span class="legend-item"><span class="legend-swatch" style="--c:#0072B2"><svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,-1.450000000000001 17.450000000000003,8 8,17.450000000000003 -1.450000000000001,8" fill="#0072B2" stroke="#0072B2" stroke-width="1.2" /></svg></span>India</span>
+          <span class="legend-item"><span class="legend-swatch" style="--c:#D55E00"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="2.05" y="2.05" width="11.9" height="11.9" fill="#D55E00" stroke="#D55E00" stroke-width="1.2" /></svg></span>Singapore</span>
+          <span class="legend-item"><span class="legend-swatch" style="--c:#CC79A7"><svg width="16" height="16" viewBox="0 0 16 16"><polygon points="8,-0.24599999999999866 0.28600000000000136,13.585999999999999 15.713999999999999,13.585999999999999" fill="#CC79A7" stroke="#CC79A7" stroke-width="1.2" /></svg></span>Turkey</span>
+          <span class="legend-item"><span class="legend-swatch" style="--c:#009E73"><svg width="16" height="16" viewBox="0 0 16 16"><g stroke="#009E73" stroke-width="2.7" stroke-linecap="round">
+        <line x1="0.29999999999999893" y1="0.29999999999999893" x2="15.700000000000001" y2="15.700000000000001" />
+        <line x1="0.29999999999999893" y1="15.700000000000001" x2="15.700000000000001" y2="0.29999999999999893" />
+      </g></svg></span>Kazakhstan</span>
+    </div>
+    <p class="takeaway" id="takeaway-radar"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Individual values, China vs. India</h2>
+    <p class="chart-sub">A seeded random sample of ~300 respondents per country (seed = 42); large outlined markers show each country's average.</p>
+    <div id="chart-scatter" class="chart"></div>
+    <p class="takeaway" id="takeaway-scatter"></p>
+  </section>
+
+  <section class="card">
+    <h2>4. Life vs. financial satisfaction — Singapore</h2>
+    <p class="chart-sub">10×10 heatmap of respondent counts, Singapore only (n = 1,898).</p>
+    <div id="chart-heatmap" class="chart"></div>
+    <p class="takeaway" id="takeaway-heatmap"></p>
+  </section>
+
+  <footer>
+    <p>Generated reproducibly by <code>scripts/generate-index.js</code> (Node.js, fixed seed = 42) from
+      <code>data/wvs-synthetic.csv</code>. This page embeds only pre-computed results — it does not read the CSV
+      at runtime, so it works offline and on static hosting alike.</p>
+  </footer>
+
+</div>
+<script>
+const DATA = {"seed":42,"samplePerCountry":300,"totalRows":9329,"cleanRows":8495,"droppedRows":834,"countryOrder":["China","India","Singapore","Turkey","Kazakhstan"],"palette":{"China":{"color":"#E69F00","marker":"circle","subregion":"East Asia"},"Singapore":{"color":"#D55E00","marker":"square","subregion":"Southeast Asia"},"Turkey":{"color":"#CC79A7","marker":"triangle","subregion":"Middle East"},"India":{"color":"#0072B2","marker":"diamond","subregion":"South Asia"},"Kazakhstan":{"color":"#009E73","marker":"cross","subregion":"Central Asia"}},"columns":[{"name":"country","type":"Categorical","nonEmpty":9329},{"name":"age","type":"Numeric (years)","nonEmpty":9329},{"name":"urban_rural","type":"Categorical","nonEmpty":9329},{"name":"income_level","type":"Categorical (ordinal)","nonEmpty":9132},{"name":"sex","type":"Categorical","nonEmpty":9329},{"name":"marital_status","type":"Categorical","nonEmpty":9278},{"name":"education","type":"Categorical (ordinal)","nonEmpty":9237},{"name":"life_satisfaction","type":"Numeric (1-10 scale)","nonEmpty":9284},{"name":"freedom_of_choice","type":"Numeric (1-10 scale)","nonEmpty":9249},{"name":"emancipative_values","type":"Numeric (0-1 index)","nonEmpty":9234},{"name":"trust_people","type":"Categorical (binary)","nonEmpty":9190},{"name":"importance_of_god","type":"Numeric (1-10 scale)","nonEmpty":9232},{"name":"financial_satisfaction","type":"Numeric (1-10 scale)","nonEmpty":9274},{"name":"secular_values","type":"Numeric (0-1 index)","nonEmpty":9295}],"quality":{"duplicateRowExtras":0,"duplicateIds":0,"droppedRows":834,"droppedPct":8.939864937292315,"beforeByCountry":{"Turkey":1313,"India":1692,"Singapore":2012,"China":3036,"Kazakhstan":1276},"afterByCountry":{"Turkey":1171,"India":1567,"Singapore":1898,"China":2882,"Kazakhstan":977}},"countryAverages":{"China":{"secular":0.40489627585010357,"emancipative":0.3929441068702291,"n":2882},"India":{"secular":0.2622189636247605,"emancipative":0.3759356317804726,"n":1567},"Singapore":{"secular":0.31167710800843024,"emancipative":0.44790831243414103,"n":1898},"Turkey":{"secular":0.27417343808710515,"emancipative":0.3593524363791633,"n":1171},"Kazakhstan":{"secular":0.3716368679631522,"emancipative":0.37356494370522086,"n":977}},"radar":{"measures":["Life satisfaction","Trust in others","Importance of god","Emancipative values","Secular values","Financial satisfaction"],"values":{"China":[0.7475017349063117,0.6561415683553088,0.275884802220688,0.3929441068702291,0.40489627585010357,0.6594031922276156],"India":[0.7251435864709621,0.18506700701978301,0.7853222718570512,0.3759356317804726,0.2622189636247605,0.6426930440331838],"Singapore":[0.7005795574288717,0.3493150684931507,0.667386722866174,0.44790831243414103,0.31167710800843024,0.653213909378293],"Turkey":[0.6395388556789073,0.15542271562766866,0.8109308283518356,0.3593524363791633,0.27417343808710515,0.5821520068317687],"Kazakhstan":[0.7040941658137146,0.24155578300921188,0.782804503582395,0.37356494370522086,0.3716368679631522,0.6288638689866939]}},"scatterSample":{"China":[{"x":0.339379,"y":0.491394},{"x":0.32042,"y":0.296435},{"x":0.360866,"y":0.358422},{"x":0.528156,"y":0.401532},{"x":0.477956,"y":0.469183},{"x":0.334482,"y":0.231129},{"x":0.433448,"y":0.233239},{"x":0.421007,"y":0.553755},{"x":0.288682,"y":0.312565},{"x":0.157827,"y":0.235617},{"x":0.373232,"y":0.330755},{"x":0.266656,"y":0.405934},{"x":0.395286,"y":0.298556},{"x":0.403523,"y":0.408472},{"x":0.340593,"y":0.326805},{"x":0.567254,"y":0.234893},{"x":0.268479,"y":0.47789},{"x":0.420924,"y":0.35943},{"x":0.438418,"y":0.393191},{"x":0.329986,"y":0.333381},{"x":0.293679,"y":0.563844},{"x":0.673247,"y":0.508827},{"x":0.217277,"y":0.281585},{"x":0.472965,"y":0.661835},{"x":0.57443,"y":0.287903},{"x":0.341613,"y":0.384142},{"x":0.266215,"y":0.463979},{"x":0.41648,"y":0.603856},{"x":0.415654,"y":0.370514},{"x":0.429891,"y":0.307862},{"x":0.38022,"y":0.463778},{"x":0.499064,"y":0.205726},{"x":0.403165,"y":0.438882},{"x":0.51443,"y":0.480408},{"x":0.4088,"y":0.559556},{"x":0.318779,"y":0.408591},{"x":0.329541,"y":0.422251},{"x":0.328225,"y":0.374216},{"x":0.386195,"y":0.359655},{"x":0.426106,"y":0.466238},{"x":0.419296,"y":0.401534},{"x":0.576567,"y":0.5183},{"x":0.280525,"y":0.19771},{"x":0.070854,"y":0.387255},{"x":0.336273,"y":0.544997},{"x":0.55095,"y":0.601782},{"x":0.462922,"y":0.584584},{"x":0.329755,"y":0.439047},{"x":0.381017,"y":0.331967},{"x":0.404839,"y":0.605758},{"x":0.482123,"y":0.278673},{"x":0.505161,"y":0.422101},{"x":0.354257,"y":0.228513},{"x":0.271183,"y":0.304497},{"x":0.272417,"y":0.311043},{"x":0.22789,"y":0.376686},{"x":0.357321,"y":0.374768},{"x":0.433179,"y":0.529057},{"x":0.377813,"y":0.501515},{"x":0.386839,"y":0.455522},{"x":0.370269,"y":0.466669},{"x":0.278032,"y":0.354528},{"x":0.453534,"y":0.445612},{"x":0.606096,"y":0.425527},{"x":0.506233,"y":0.243811},{"x":0.464493,"y":0.458551},{"x":0.346753,"y":0.110314},{"x":0.336988,"y":0.328774},{"x":0.284138,"y":0.274463},{"x":0.479474,"y":0.391084},{"x":0.393868,"y":0.43688},{"x":0.358825,"y":0.209483},{"x":0.375649,"y":0.320866},{"x":0.657608,"y":0.519135},{"x":0.51762,"y":0.298639},{"x":0.214101,"y":0.360497},{"x":0.25689,"y":0.417907},{"x":0.28254,"y":0.272477},{"x":0.293133,"y":0.328021},{"x":0.479736,"y":0.565009},{"x":0.651921,"y":0.259211},{"x":0.441884,"y":0.50048},{"x":0.245349,"y":0.277961},{"x":0.403848,"y":0.23221},{"x":0.272369,"y":0.422064},{"x":0.632508,"y":0.38394},{"x":0.415699,"y":0.380647},{"x":0.409727,"y":0.571894},{"x":0.349747,"y":0.43215},{"x":0.317194,"y":0.295855},{"x":0.431649,"y":0.140303},{"x":0.440633,"y":0.394262},{"x":0.412493,"y":0.24745},{"x":0.455988,"y":0.430515},{"x":0.508904,"y":0.438576},{"x":0.600439,"y":0.372661},{"x":0.785159,"y":0.157289},{"x":0.272917,"y":0.241494},{"x":0.269646,"y":0.212929},{"x":0.552347,"y":0.491265},{"x":0.656855,"y":0.358113},{"x":0.412617,"y":0.246184},{"x":0.274808,"y":0.345039},{"x":0.179955,"y":0.185237},{"x":0.376475,"y":0.247865},{"x":0.510126,"y":0.399549},{"x":0.461588,"y":0.582775},{"x":0.135639,"y":0.343846},{"x":0.259639,"y":0.340375},{"x":0.462664,"y":0.41112},{"x":0.322081,"y":0.396983},{"x":0.560539,"y":0.461112},{"x":0.328643,"y":0.39842},{"x":0.549841,"y":0.508483},{"x":0.591073,"y":0.324689},{"x":0.465619,"y":0.542652},{"x":0.706304,"y":0.297123},{"x":0.37699,"y":0.451977},{"x":0.087372,"y":0.476312},{"x":0.414408,"y":0.357464},{"x":0.481916,"y":0.400327},{"x":0.432916,"y":0.386582},{"x":0.362857,"y":0.313277},{"x":0.501869,"y":0.40339},{"x":0.45003,"y":0.384617},{"x":0.32262,"y":0.404153},{"x":0.414909,"y":0.423584},{"x":0.285861,"y":0.433432},{"x":0.41463,"y":0.553467},{"x":0.499095,"y":0.418072},{"x":0.313568,"y":0.269878},{"x":0.4244,"y":0.555894},{"x":0.280992,"y":0.416076},{"x":0.538523,"y":0.459466},{"x":0.352717,"y":0.35841},{"x":0.599477,"y":0.420455},{"x":0.446715,"y":0.603818},{"x":0.284419,"y":0.415751},{"x":0.34321,"y":0.384213},{"x":0.381013,"y":0.383855},{"x":0.527447,"y":0.583521},{"x":0.391151,"y":0.462821},{"x":0.262353,"y":0.346452},{"x":0.412908,"y":0.419843},{"x":0.391925,"y":0.33862},{"x":0.25127,"y":0.341635},{"x":0.46142,"y":0.488187},{"x":0.2499,"y":0.37059},{"x":0.281594,"y":0.322004},{"x":0.274244,"y":0.342314},{"x":0.444112,"y":0.385098},{"x":0.397409,"y":0.463056},{"x":0.681313,"y":0.600679},{"x":0.447017,"y":0.397538},{"x":0.376482,"y":0.46625},{"x":0.69633,"y":0.388139},{"x":0.385997,"y":0.288581},{"x":0.416103,"y":0.270461},{"x":0.309463,"y":0.445919},{"x":0.349736,"y":0.290324},{"x":0.226644,"y":0.205113},{"x":0.260823,"y":0.251506},{"x":0.334193,"y":0.20699},{"x":0.251947,"y":0.577345},{"x":0.665211,"y":0.435499},{"x":0.355537,"y":0.453273},{"x":0.422934,"y":0.428473},{"x":0.530406,"y":0.436519},{"x":0.329164,"y":0.310706},{"x":0.462877,"y":0.30814},{"x":0.244088,"y":0.279457},{"x":0.399429,"y":0.615204},{"x":0.317801,"y":0.356853},{"x":0.357978,"y":0.483386},{"x":0.543854,"y":0.455139},{"x":0.402353,"y":0.351232},{"x":0.631376,"y":0.450939},{"x":0.384508,"y":0.603429},{"x":0.461275,"y":0.413687},{"x":0.293132,"y":0.37056},{"x":0.688762,"y":0.432345},{"x":0.402801,"y":0.727456},{"x":0.662777,"y":0.428054},{"x":0.591704,"y":0.44809},{"x":0.571509,"y":0.432973},{"x":0.388556,"y":0.285098},{"x":0.4127,"y":0.14251},{"x":0.542365,"y":0.500146},{"x":0.5693,"y":0.466052},{"x":0.179858,"y":0.245299},{"x":0.561597,"y":0.520743},{"x":0.625827,"y":0.376407},{"x":0.454299,"y":0.598746},{"x":0.425309,"y":0.368709},{"x":0.380102,"y":0.390046},{"x":0.301734,"y":0.316411},{"x":0.397996,"y":0.309975},{"x":0.481934,"y":0.52729},{"x":0.472486,"y":0.21058},{"x":0.36988,"y":0.325834},{"x":0.18565,"y":0.497119},{"x":0.190932,"y":0.294046},{"x":0.450096,"y":0.317704},{"x":0.289001,"y":0.380708},{"x":0.390325,"y":0.140456},{"x":0.352252,"y":0.287533},{"x":0.426289,"y":0.396294},{"x":0.570409,"y":0.423805},{"x":0.323363,"y":0.518725},{"x":0.460383,"y":0.385086},{"x":0.454214,"y":0.424465},{"x":0.448273,"y":0.581112},{"x":0.353719,"y":0.3411},{"x":0.549371,"y":0.474897},{"x":0.635946,"y":0.373061},{"x":0.330855,"y":0.255617},{"x":0.38211,"y":0.467455},{"x":0.343911,"y":0.313774},{"x":0.425932,"y":0.481739},{"x":0.303613,"y":0.174757},{"x":0.712349,"y":0.304476},{"x":0.498341,"y":0.388091},{"x":0.342136,"y":0.26213},{"x":0.042568,"y":0.439896},{"x":0.221215,"y":0.27535},{"x":0.203461,"y":0.263602},{"x":0.33537,"y":0.143516},{"x":0.468345,"y":0.451992},{"x":0.493643,"y":0.452713},{"x":0.437795,"y":0.567618},{"x":0.335824,"y":0.264314},{"x":0.739,"y":0.596469},{"x":0.411429,"y":0.411237},{"x":0.470684,"y":0.252886},{"x":0.196473,"y":0.264621},{"x":0.241361,"y":0.317618},{"x":0.33523,"y":0.267976},{"x":0.31593,"y":0.386568},{"x":0.298779,"y":0.366873},{"x":0.371991,"y":0.319967},{"x":0.315998,"y":0.331674},{"x":0.347343,"y":0.442532},{"x":0.447084,"y":0.290943},{"x":0.373103,"y":0.677336},{"x":0.465081,"y":0.581579},{"x":0.561345,"y":0.393215},{"x":0.496152,"y":0.526645},{"x":0.386535,"y":0.557319},{"x":0.420295,"y":0.423585},{"x":0.319897,"y":0.392977},{"x":0.636848,"y":0.403709},{"x":0.232831,"y":0.370092},{"x":0.487721,"y":0.365941},{"x":0.704932,"y":0.279842},{"x":0.415852,"y":0.444744},{"x":0.422947,"y":0.311943},{"x":0.365101,"y":0.210968},{"x":0.555141,"y":0.414215},{"x":0.384026,"y":0.695086},{"x":0.435981,"y":0.290774},{"x":0.427347,"y":0.427059},{"x":0.216806,"y":0.279248},{"x":0.37896,"y":0.523681},{"x":0.444965,"y":0.382164},{"x":0.516576,"y":0.34458},{"x":0.489782,"y":0.297164},{"x":0.692074,"y":0.220565},{"x":0.353336,"y":0.301855},{"x":0.262115,"y":0.384535},{"x":0.266994,"y":0.298847},{"x":0.285341,"y":0.445509},{"x":0.443945,"y":0.499411},{"x":0.391842,"y":0.341955},{"x":0.270572,"y":0.369368},{"x":0.493139,"y":0.40296},{"x":0.274259,"y":0.432167},{"x":0.363256,"y":0.330995},{"x":0.301796,"y":0.457686},{"x":0.392499,"y":0.449941},{"x":0.396701,"y":0.324751},{"x":0.554472,"y":0.400016},{"x":0.42802,"y":0.507336},{"x":0.322379,"y":0.280339},{"x":0.150407,"y":0.27501},{"x":0.20927,"y":0.220381},{"x":0.33013,"y":0.401434},{"x":0.507102,"y":0.421319},{"x":0.246082,"y":0.369593},{"x":0.47353,"y":0.598346},{"x":0.26467,"y":0.388242},{"x":0.439049,"y":0.186242},{"x":0.393302,"y":0.450348},{"x":0.455706,"y":0.280358},{"x":0.299957,"y":0.391876},{"x":0.368675,"y":0.348526},{"x":0.239996,"y":0.404375},{"x":0.42475,"y":0.31319},{"x":0.443325,"y":0.664294},{"x":0.392927,"y":0.430589},{"x":0.433104,"y":0.356242}],"India":[{"x":0.501956,"y":0.318274},{"x":0.202204,"y":0.183606},{"x":0.41977,"y":0.368397},{"x":0.211362,"y":0.352105},{"x":0.048012,"y":0.111177},{"x":0.190963,"y":0.380224},{"x":0.334223,"y":0.311643},{"x":0.024226,"y":0.487779},{"x":0.50483,"y":0.548689},{"x":0.161265,"y":0.386382},{"x":0.46377,"y":0.426048},{"x":0.066245,"y":0.33096},{"x":0.247932,"y":0.236638},{"x":0.353453,"y":0.351847},{"x":0.104072,"y":0.264464},{"x":0.177783,"y":0.264716},{"x":0.199953,"y":0.158582},{"x":0.313069,"y":0.220947},{"x":0.503138,"y":0.525705},{"x":0.465938,"y":0.367329},{"x":0.047638,"y":0.397058},{"x":0.516682,"y":0.453309},{"x":0.216683,"y":0.356186},{"x":0.28063,"y":0.404767},{"x":0.352659,"y":0.56997},{"x":0.162962,"y":0.400437},{"x":0.32545,"y":0.320507},{"x":0.441061,"y":0.370703},{"x":0.368959,"y":0.437388},{"x":0.445933,"y":0.257645},{"x":0.695491,"y":0.411795},{"x":0.014413,"y":0.409289},{"x":0.117451,"y":0.371619},{"x":0.16264,"y":0.498792},{"x":0.396081,"y":0.290544},{"x":0.311616,"y":0.382127},{"x":0.242676,"y":0.305077},{"x":0.305451,"y":0.220685},{"x":0.394131,"y":0.315856},{"x":0.428669,"y":0.328635},{"x":0.233166,"y":0.310895},{"x":0.080928,"y":0.175999},{"x":0.385969,"y":0.421821},{"x":0.206553,"y":0.314607},{"x":0.069941,"y":0.366089},{"x":0.401204,"y":0.609971},{"x":0.34106,"y":0.328425},{"x":0.532791,"y":0.739148},{"x":0.474076,"y":0.418189},{"x":0.25412,"y":0.607652},{"x":0.258588,"y":0.245307},{"x":0.095426,"y":0.188358},{"x":0.170234,"y":0.274148},{"x":0.329898,"y":0.103662},{"x":0.569814,"y":0.191747},{"x":0.366927,"y":0.566152},{"x":0.15124,"y":0.560677},{"x":0.714975,"y":0.303117},{"x":0.459513,"y":0.312975},{"x":0.18043,"y":0.381412},{"x":0.365716,"y":0.36642},{"x":0.003529,"y":0.03502},{"x":0.335887,"y":0.377375},{"x":0.178331,"y":0.255726},{"x":0.406655,"y":0.435414},{"x":0.146416,"y":0.539503},{"x":0.648651,"y":0.330131},{"x":0.190767,"y":0.330569},{"x":0.343401,"y":0.435341},{"x":0.346158,"y":0.252414},{"x":0.24564,"y":0.323248},{"x":0.475603,"y":0.469245},{"x":0.179215,"y":0.521431},{"x":0.465454,"y":0.476841},{"x":0.294803,"y":0.386381},{"x":0.215001,"y":0.451566},{"x":0.182569,"y":0.355027},{"x":0.106467,"y":0.61987},{"x":0.157323,"y":0.451737},{"x":0.041999,"y":0.543169},{"x":0.28476,"y":0.53038},{"x":0.091912,"y":0.330183},{"x":0.211414,"y":0.321167},{"x":0.137292,"y":0.459885},{"x":0.081442,"y":0.416343},{"x":0.157329,"y":0.206842},{"x":0.276272,"y":0.16167},{"x":0.068332,"y":0.215432},{"x":0.079551,"y":0.291663},{"x":0.137584,"y":0.464846},{"x":0.428397,"y":0.393844},{"x":0.71391,"y":0.371513},{"x":0.216311,"y":0.363851},{"x":0.336616,"y":0.314934},{"x":0.425449,"y":0.298252},{"x":0.203772,"y":0.387147},{"x":0.740691,"y":0.66843},{"x":0.112659,"y":0.534617},{"x":0.358248,"y":0.326439},{"x":0.185508,"y":0.306907},{"x":0.148755,"y":0.255067},{"x":0.100332,"y":0.455623},{"x":0.422867,"y":0.340518},{"x":0.517066,"y":0.586439},{"x":0.154221,"y":0.351873},{"x":0.256392,"y":0.352441},{"x":0.03467,"y":0.281491},{"x":0.123482,"y":0.44252},{"x":0.449534,"y":0.199437},{"x":0.186286,"y":0.26761},{"x":0.65703,"y":0.155018},{"x":0.166918,"y":0.254594},{"x":0.160873,"y":0.355396},{"x":0.46079,"y":0.390394},{"x":0.265627,"y":0.246077},{"x":0.080088,"y":0.485096},{"x":0.031298,"y":0.284392},{"x":0.191707,"y":0.439853},{"x":0.635904,"y":0.468672},{"x":0.389689,"y":0.503696},{"x":0,"y":0.153592},{"x":0.439015,"y":0.509966},{"x":0.260812,"y":0.443113},{"x":0.383385,"y":0.470531},{"x":0.167056,"y":0.33872},{"x":0.100593,"y":0.275698},{"x":0.351573,"y":0.357872},{"x":0.18104,"y":0.292701},{"x":0.336191,"y":0.320872},{"x":0.21681,"y":0.340041},{"x":0.401495,"y":0.462866},{"x":0.104404,"y":0.503857},{"x":0.379333,"y":0.430403},{"x":0.287011,"y":0.495026},{"x":0.215597,"y":0.551033},{"x":0.291958,"y":0.580613},{"x":0.182869,"y":0.259906},{"x":0.149986,"y":0.483097},{"x":0.251346,"y":0.32727},{"x":0.291361,"y":0.514821},{"x":0.349058,"y":0.355463},{"x":0.204621,"y":0.441858},{"x":0.403172,"y":0.279064},{"x":0.423269,"y":0.449487},{"x":0.24397,"y":0.307165},{"x":0.32189,"y":0.239593},{"x":0.356298,"y":0.321397},{"x":0.37567,"y":0.741641},{"x":0.152739,"y":0.517679},{"x":0.41371,"y":0.18219},{"x":0.582752,"y":0.298442},{"x":0.098185,"y":0.241746},{"x":0.15872,"y":0.490716},{"x":0.301765,"y":0.231652},{"x":0.026012,"y":0.435527},{"x":0.016495,"y":0.313863},{"x":0.257818,"y":0.549193},{"x":0.08218,"y":0.132656},{"x":0.431472,"y":0.434247},{"x":0.066676,"y":0.42784},{"x":0.289951,"y":0.409169},{"x":0.194285,"y":0.393257},{"x":0.389928,"y":0.293693},{"x":0.263303,"y":0.39805},{"x":0.107641,"y":0.509198},{"x":0.098757,"y":0.326939},{"x":0.561917,"y":0.585894},{"x":0.287146,"y":0.438804},{"x":0.228288,"y":0.116878},{"x":0.29354,"y":0.252962},{"x":0.43308,"y":0.448211},{"x":0.101164,"y":0.127605},{"x":0.190773,"y":0.627271},{"x":0.258834,"y":0.402988},{"x":0.187869,"y":0.339461},{"x":0.131632,"y":0.42153},{"x":0.45384,"y":0.288655},{"x":0.163548,"y":0.475917},{"x":0.119781,"y":0.395303},{"x":0.164978,"y":0.290305},{"x":0.142156,"y":0.200596},{"x":0.064675,"y":0.314214},{"x":0.270698,"y":0.214923},{"x":0.133061,"y":0.244815},{"x":0.405694,"y":0.47968},{"x":0.382511,"y":0.398577},{"x":0.104974,"y":0.201},{"x":0.542427,"y":0.275881},{"x":0.239797,"y":0.262467},{"x":0.062948,"y":0.271419},{"x":0.479175,"y":0.475575},{"x":0.142488,"y":0.38987},{"x":0.404379,"y":0.534291},{"x":0.248971,"y":0.321795},{"x":0.223671,"y":0.377528},{"x":0.145736,"y":0.497041},{"x":0.122294,"y":0.157987},{"x":0.212121,"y":0.416374},{"x":0.488166,"y":0.303257},{"x":0.187307,"y":0.084925},{"x":0.086732,"y":0.227677},{"x":0.423747,"y":0.297902},{"x":0.156969,"y":0.221809},{"x":0.289658,"y":0.400879},{"x":0.173448,"y":0.256146},{"x":0.05852,"y":0.464394},{"x":0.565925,"y":0.517794},{"x":0.552123,"y":0.583906},{"x":0.372539,"y":0.301304},{"x":0.552198,"y":0.408108},{"x":0.068297,"y":0.176076},{"x":0.235755,"y":0.312299},{"x":0.237171,"y":0.630854},{"x":0.147714,"y":0.386346},{"x":0.215159,"y":0.647631},{"x":0.249372,"y":0.660964},{"x":0.199073,"y":0.273472},{"x":0.414748,"y":0.074631},{"x":0.22951,"y":0.563702},{"x":0.346968,"y":0.311672},{"x":0.292104,"y":0.346774},{"x":0.23493,"y":0.264033},{"x":0.048683,"y":0.321161},{"x":0.149558,"y":0.281745},{"x":0.319101,"y":0.490277},{"x":0.104783,"y":0.380763},{"x":0.284134,"y":0.250212},{"x":0.317689,"y":0.284467},{"x":0.215286,"y":0.570447},{"x":0.443688,"y":0.381386},{"x":0.381252,"y":0.44766},{"x":0.179942,"y":0.488779},{"x":0.155998,"y":0.314063},{"x":0.269882,"y":0.301075},{"x":0.025359,"y":0.257121},{"x":0.387066,"y":0.449373},{"x":0.209671,"y":0.406475},{"x":0.413384,"y":0.616613},{"x":0.31522,"y":0.55797},{"x":0.273276,"y":0.564692},{"x":0.238913,"y":0.332761},{"x":0.424238,"y":0.559461},{"x":0.361762,"y":0.320666},{"x":0.236828,"y":0.492779},{"x":0.472625,"y":0.435721},{"x":0.683473,"y":0.427612},{"x":0.03373,"y":0.193723},{"x":0.31731,"y":0.32452},{"x":0.175961,"y":0.465545},{"x":0.195674,"y":0.267599},{"x":0.231919,"y":0.32044},{"x":0.245117,"y":0.355938},{"x":0.232879,"y":0.370878},{"x":0.364907,"y":0.157073},{"x":0.112147,"y":0.301077},{"x":0.246581,"y":0.325902},{"x":0.03756,"y":0.310299},{"x":0.308445,"y":0.256274},{"x":0.250063,"y":0.331309},{"x":0.361855,"y":0.247016},{"x":0.48667,"y":0.242473},{"x":0.251824,"y":0.421624},{"x":0.230527,"y":0.257873},{"x":0.16524,"y":0.303865},{"x":0.211356,"y":0.733769},{"x":0.635547,"y":0.383268},{"x":0.243225,"y":0.358898},{"x":0.292231,"y":0.064234},{"x":0.242951,"y":0.540517},{"x":0.086822,"y":0.366554},{"x":0.078854,"y":0.306526},{"x":0.474225,"y":0.271362},{"x":0.315306,"y":0.27913},{"x":0.098218,"y":0.249918},{"x":0.187049,"y":0.532724},{"x":0.669147,"y":0.588875},{"x":0.473564,"y":0.581672},{"x":0.371815,"y":0.372245},{"x":0.469325,"y":0.597355},{"x":0.551177,"y":0.476837},{"x":0.13319,"y":0.323369},{"x":0.383019,"y":0.45478},{"x":0.426252,"y":0.302503},{"x":0.413593,"y":0.342615},{"x":0.062332,"y":0.312755},{"x":0.349169,"y":0.342671},{"x":0.038044,"y":0.221873},{"x":0.491918,"y":0.456471},{"x":0.281366,"y":0.39303},{"x":0.211535,"y":0.462673},{"x":0.334383,"y":0.175299},{"x":0.060293,"y":0.427},{"x":0.362018,"y":0.417401},{"x":0.272185,"y":0.391367},{"x":0.258158,"y":0.265966},{"x":0.089792,"y":0.487322},{"x":0.349969,"y":0.303474},{"x":0.19992,"y":0.888029},{"x":0.207668,"y":0.676403},{"x":0.074584,"y":0.473506}]},"heatmap":{"matrix":[[5,3,3,1,1,0,0,0,0,0],[3,2,1,0,3,0,1,0,0,0],[6,5,9,8,8,5,3,0,0,0],[6,6,9,11,22,9,6,3,0,0],[8,15,26,28,70,50,32,21,0,0],[2,5,7,22,57,52,56,28,5,1],[2,2,13,22,89,126,134,98,15,7],[0,1,3,4,44,55,142,117,44,32],[0,0,0,1,7,13,35,50,19,23],[0,0,0,0,0,5,18,56,28,69]],"n":1898,"max":142}};
+
+function fmt(v, dp) { return Number(v).toFixed(dp); }
+function markerSvg(type, cx, cy, r, color, strokeOnly) {
+  const fill = strokeOnly ? 'white' : color;
+  const stroke = color;
+  const sw = strokeOnly ? 2.5 : 1.2;
+  switch (type) {
+    case 'circle':
+      return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" />';
+    case 'square': {
+      const s = r * 1.7;
+      return '<rect x="' + (cx - s / 2) + '" y="' + (cy - s / 2) + '" width="' + s + '" height="' + s + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" />';
+    }
+    case 'triangle': {
+      const h = r * 1.9;
+      const p1 = cx + ',' + (cy - h * 0.62);
+      const p2 = (cx - h * 0.58) + ',' + (cy + h * 0.42);
+      const p3 = (cx + h * 0.58) + ',' + (cy + h * 0.42);
+      return '<polygon points="' + p1 + ' ' + p2 + ' ' + p3 + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" />';
+    }
+    case 'diamond': {
+      const d = r * 1.35;
+      return '<polygon points="' + cx + ',' + (cy - d) + ' ' + (cx + d) + ',' + cy + ' ' + cx + ',' + (cy + d) + ' ' + (cx - d) + ',' + cy + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" />';
+    }
+    case 'cross': {
+      const s = r * 1.1;
+      return '<g stroke="' + color + '" stroke-width="' + (sw + 1.5) + '" stroke-linecap="round">' +
+        '<line x1="' + (cx - s) + '" y1="' + (cy - s) + '" x2="' + (cx + s) + '" y2="' + (cy + s) + '" />' +
+        '<line x1="' + (cx - s) + '" y1="' + (cy + s) + '" x2="' + (cx + s) + '" y2="' + (cy - s) + '" />' +
+        '</g>';
+    }
+    default:
+      return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" />';
+  }
+}
+
+// ---------- 1. Cultural map ----------
+function renderCulturalMap() {
+  const W = 640, H = 440, pad = { l: 60, r: 30, t: 20, b: 50 };
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+
+  // Zoom the axes to the spread of the 5 country averages (with padding),
+  // rather than the full 0-1 scale, so the points aren't squeezed into one corner.
+  const secVals = DATA.countryOrder.map((c) => DATA.countryAverages[c].secular);
+  const emVals = DATA.countryOrder.map((c) => DATA.countryAverages[c].emancipative);
+  function niceDomain(vals) {
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const padAmt = Math.max((hi - lo) * 0.35, 0.05);
+    return [Math.max(0, lo - padAmt), Math.min(1, hi + padAmt)];
+  }
+  const xDomain = niceDomain(secVals), yDomain = niceDomain(emVals);
+  const x = (v) => pad.l + ((v - xDomain[0]) / (xDomain[1] - xDomain[0])) * plotW;
+  const y = (v) => pad.t + plotH - ((v - yDomain[0]) / (yDomain[1] - yDomain[0])) * plotH;
+
+  function niceStep(domain) {
+    const span = domain[1] - domain[0];
+    if (span <= 0.15) return 0.02;
+    if (span <= 0.3) return 0.05;
+    return 0.1;
+  }
+  const xStep = niceStep(xDomain), yStep = niceStep(yDomain);
+
+  let axesSvg = '';
+  for (let g = Math.ceil(xDomain[0] / xStep) * xStep; g <= xDomain[1] + 1e-9; g += xStep) {
+    const gx = x(g);
+    axesSvg += '<line x1="' + gx + '" y1="' + pad.t + '" x2="' + gx + '" y2="' + (pad.t + plotH) + '" stroke="#e2e2df" stroke-width="1" />';
+    axesSvg += '<text x="' + gx + '" y="' + (pad.t + plotH + 18) + '" font-size="11" fill="#57606a" text-anchor="middle">' + fmt(g, 2) + '</text>';
+  }
+  for (let g = Math.ceil(yDomain[0] / yStep) * yStep; g <= yDomain[1] + 1e-9; g += yStep) {
+    const gy = y(g);
+    axesSvg += '<line x1="' + pad.l + '" y1="' + gy + '" x2="' + (pad.l + plotW) + '" y2="' + gy + '" stroke="#e2e2df" stroke-width="1" />';
+    axesSvg += '<text x="' + (pad.l - 10) + '" y="' + (gy + 4) + '" font-size="11" fill="#57606a" text-anchor="end">' + fmt(g, 2) + '</text>';
+  }
+  axesSvg += '<line x1="' + pad.l + '" y1="' + (pad.t + plotH) + '" x2="' + (pad.l + plotW) + '" y2="' + (pad.t + plotH) + '" stroke="#888" />';
+  axesSvg += '<line x1="' + pad.l + '" y1="' + pad.t + '" x2="' + pad.l + '" y2="' + (pad.t + plotH) + '" stroke="#888" />';
+  axesSvg += '<text x="' + (pad.l + plotW / 2) + '" y="' + (H - 8) + '" font-size="12" fill="#333" text-anchor="middle">Secular values (0-1)</text>';
+  axesSvg += '<text x="14" y="' + (pad.t + plotH / 2) + '" font-size="12" fill="#333" text-anchor="middle" transform="rotate(-90 14 ' + (pad.t + plotH / 2) + ')">Emancipative values (0-1)</text>';
+
+  // Place each label radially outward from the cluster centroid so 5 nearby
+  // points don't stack their text on top of each other.
+  const pts = DATA.countryOrder.map((c) => {
+    const a = DATA.countryAverages[c];
+    return { c, cx: x(a.secular), cy: y(a.emancipative), a };
+  });
+  const centroidX = pts.reduce((s, p) => s + p.cx, 0) / pts.length;
+  const centroidY = pts.reduce((s, p) => s + p.cy, 0) / pts.length;
+
+  let pointsSvg = '';
+  pts.forEach(({ c, cx, cy, a }) => {
+    const p = DATA.palette[c];
+    let dx = cx - centroidX, dy = cy - centroidY;
+    const dist = Math.hypot(dx, dy) || 1;
+    dx /= dist; dy /= dist;
+    const labelR = 24;
+    const lx = cx + dx * labelR, ly = cy + dy * labelR;
+    const anchor = dx > 0.25 ? 'start' : (dx < -0.25 ? 'end' : 'middle');
+    pointsSvg += markerSvg(p.marker, cx, cy, 7, p.color);
+    pointsSvg += '<text x="' + lx + '" y="' + ly + '" font-size="12" fill="' + p.color + '" font-weight="600" text-anchor="' + anchor + '">' + c + '</text>';
+  });
+
+  document.getElementById('chart-cultural-map').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Cultural map scatter of country averages">' + axesSvg + pointsSvg + '</svg>';
+
+  const sortedBySecular = DATA.countryOrder.slice().sort((a, b) => DATA.countryAverages[a].secular - DATA.countryAverages[b].secular);
+  const lo = sortedBySecular[0], hi = sortedBySecular[sortedBySecular.length - 1];
+  document.getElementById('takeaway-cultural-map').textContent =
+    hi + ' shows the highest average secular values (' + fmt(DATA.countryAverages[hi].secular, 2) + ') while ' +
+    lo + ' shows the lowest (' + fmt(DATA.countryAverages[lo].secular, 2) + '); emancipative values are more similar ' +
+    'across countries, roughly ' + fmt(Math.min(...DATA.countryOrder.map(c => DATA.countryAverages[c].emancipative)), 2) +
+    '–' + fmt(Math.max(...DATA.countryOrder.map(c => DATA.countryAverages[c].emancipative)), 2) + '.';
+}
+
+// ---------- 2. Radar chart ----------
+function renderRadar() {
+  const W = 520, H = 520;
+  const cx = W / 2, cy = H / 2, maxR = 190;
+  const n = DATA.radar.measures.length;
+  const angle = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const pt = (i, v) => {
+    const a = angle(i), r = v * maxR;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+
+  let gridSvg = '';
+  [0.2, 0.4, 0.6, 0.8, 1.0].forEach((g) => {
+    const pts = [];
+    for (let i = 0; i < n; i++) pts.push(pt(i, g).join(','));
+    gridSvg += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="#e2e2df" stroke-width="1" />';
+  });
+  for (let i = 0; i < n; i++) {
+    const [ex, ey] = pt(i, 1.05);
+    gridSvg += '<line x1="' + cx + '" y1="' + cy + '" x2="' + pt(i, 1)[0] + '" y2="' + pt(i, 1)[1] + '" stroke="#e2e2df" stroke-width="1" />';
+    const anchor = Math.cos(angle(i)) > 0.3 ? 'start' : (Math.cos(angle(i)) < -0.3 ? 'end' : 'middle');
+    gridSvg += '<text x="' + ex + '" y="' + ey + '" font-size="11" fill="#333" text-anchor="' + anchor + '">' + DATA.radar.measures[i] + '</text>';
+  }
+
+  let linesSvg = '';
+  DATA.countryOrder.forEach((c) => {
+    const p = DATA.palette[c];
+    const vals = DATA.radar.values[c];
+    const pts = vals.map((v, i) => pt(i, v));
+    linesSvg += '<polygon points="' + pts.map((pp) => pp.join(',')).join(' ') + '" fill="' + p.color + '" fill-opacity="0.07" stroke="' + p.color + '" stroke-width="2.2" />';
+    pts.forEach((pp) => { linesSvg += markerSvg(p.marker, pp[0], pp[1], 5, p.color); });
+  });
+
+  document.getElementById('chart-radar').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Radar chart of normalised value measures by country">' + gridSvg + linesSvg + '</svg>';
+
+  const chinaTrust = DATA.radar.values.China[1], othersTrust = DATA.countryOrder.filter(c => c !== 'China').map(c => DATA.radar.values[c][1]);
+  document.getElementById('takeaway-radar').textContent =
+    'China stands out with much higher trust in others (' + fmt(chinaTrust, 2) + ' vs. ' + fmt(Math.max(...othersTrust), 2) +
+    ' at most elsewhere), while importance of god shows the widest spread of any measure across the five countries.';
+}
+
+// ---------- 3. China vs India scatter ----------
+function renderScatter() {
+  const W = 640, H = 440, pad = { l: 60, r: 30, t: 20, b: 50 };
+  const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+  const domain = [0, 1];
+  const x = (v) => pad.l + ((v - domain[0]) / (domain[1] - domain[0])) * plotW;
+  const y = (v) => pad.t + plotH - ((v - domain[0]) / (domain[1] - domain[0])) * plotH;
+
+  let axesSvg = '';
+  for (let g = 0; g <= 1.0001; g += 0.2) {
+    const gx = x(g), gy = y(g);
+    axesSvg += '<line x1="' + gx + '" y1="' + pad.t + '" x2="' + gx + '" y2="' + (pad.t + plotH) + '" stroke="#e2e2df" stroke-width="1" />';
+    axesSvg += '<line x1="' + pad.l + '" y1="' + gy + '" x2="' + (pad.l + plotW) + '" y2="' + gy + '" stroke="#e2e2df" stroke-width="1" />';
+    axesSvg += '<text x="' + gx + '" y="' + (pad.t + plotH + 18) + '" font-size="11" fill="#57606a" text-anchor="middle">' + fmt(g, 1) + '</text>';
+    axesSvg += '<text x="' + (pad.l - 10) + '" y="' + (gy + 4) + '" font-size="11" fill="#57606a" text-anchor="end">' + fmt(g, 1) + '</text>';
+  }
+  axesSvg += '<line x1="' + pad.l + '" y1="' + (pad.t + plotH) + '" x2="' + (pad.l + plotW) + '" y2="' + (pad.t + plotH) + '" stroke="#888" />';
+  axesSvg += '<line x1="' + pad.l + '" y1="' + pad.t + '" x2="' + pad.l + '" y2="' + (pad.t + plotH) + '" stroke="#888" />';
+  axesSvg += '<text x="' + (pad.l + plotW / 2) + '" y="' + (H - 8) + '" font-size="12" fill="#333" text-anchor="middle">Secular values (0-1)</text>';
+  axesSvg += '<text x="14" y="' + (pad.t + plotH / 2) + '" font-size="12" fill="#333" text-anchor="middle" transform="rotate(-90 14 ' + (pad.t + plotH / 2) + ')">Emancipative values (0-1)</text>';
+
+  let ptsSvg = '';
+  ['China', 'India'].forEach((c) => {
+    const p = DATA.palette[c];
+    DATA.scatterSample[c].forEach((d) => {
+      ptsSvg += markerSvg(p.marker, x(d.x), y(d.y), 3.2, p.color).replace('stroke-width="1.2"', 'stroke-width="0.6"').replace(/fill="[^"]*"/, 'fill="' + p.color + '" fill-opacity="0.55"');
+    });
+  });
+  ['China', 'India'].forEach((c) => {
+    const p = DATA.palette[c];
+    const a = DATA.countryAverages[c];
+    ptsSvg += markerSvg(p.marker, x(a.secular), y(a.emancipative), 11, p.color, true);
+  });
+
+  document.getElementById('chart-scatter').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Scatter of individual secular vs emancipative values, China and India">' + axesSvg + ptsSvg + '</svg>';
+
+  document.getElementById('takeaway-scatter').textContent =
+    'China\'s average sits higher on secular values (' + fmt(DATA.countryAverages.China.secular, 2) + ' vs. ' + fmt(DATA.countryAverages.India.secular, 2) +
+    ' for India), but the two countries\' individual clouds overlap heavily — an individual respondent\'s country is a weak predictor of their personal values.';
+}
+
+// ---------- 4. Singapore heatmap ----------
+function shadeFor(count, max) {
+  if (count === 0) return '#f4f4f2';
+  const t = Math.sqrt(count / max); // sqrt for perceptual spread
+  const l = 88 - t * 58; // lightness 88% -> 30%
+  return 'hsl(24, 75%, ' + l.toFixed(0) + '%)';
+}
+function renderHeatmap() {
+  const m = DATA.heatmap.matrix, max = DATA.heatmap.max;
+  let html = '<div class="hm-wrap"><table class="hm-table"><tbody>';
+  html += '<tr><td></td><td></td><td colspan="10" class="hm-axis-label">Financial satisfaction &rarr;</td></tr>';
+  html += '<tr><td></td><td></td>' + Array.from({length:10},(_,j)=>'<td class="hm-axis-label">'+(j+1)+'</td>').join('') + '</tr>';
+  for (let i = 9; i >= 0; i--) {
+    html += '<tr>';
+    if (i === 9) html += '<td rowspan="10" class="hm-axis-label" style="writing-mode: vertical-rl; transform: rotate(180deg);">Life satisfaction &uarr;</td>';
+    html += '<td class="hm-axis-label">' + (i + 1) + '</td>';
+    for (let j = 0; j < 10; j++) {
+      const count = m[i][j];
+      const title = 'Life satisfaction ' + (i + 1) + ', financial satisfaction ' + (j + 1) + ': ' + count + ' respondent' + (count === 1 ? '' : 's');
+      html += '<td class="hm-cell" title="' + title + '" style="background:' + shadeFor(count, max) + '">' + (count > 0 ? count : '') + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  document.getElementById('chart-heatmap').innerHTML = html;
+
+  let peak = { i: 0, j: 0, v: -1 };
+  for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) if (m[i][j] > peak.v) peak = { i, j, v: m[i][j] };
+  document.getElementById('takeaway-heatmap').textContent =
+    'The most common combination is life satisfaction ' + (peak.i + 1) + ' with financial satisfaction ' + (peak.j + 1) +
+    ' (' + peak.v + ' respondents), and counts cluster along the diagonal — respondents who report higher financial satisfaction tend to also report higher life satisfaction.';
+}
+
+renderCulturalMap();
+renderRadar();
+renderScatter();
+renderHeatmap();
+
+</script>
+</body>
+</html>
